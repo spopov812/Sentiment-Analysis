@@ -24,5 +24,4 @@ def build_model():
         loss="categorical_crossentropy",
         optimizer="adam",
         metrics=["binary_accuracy", 'categorical_crossentropy']
-
     )
