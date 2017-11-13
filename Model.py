@@ -2,17 +2,19 @@ from keras import Sequential
 from keras.layers import Dense, LSTM, Dropout, Embedding, Flatten
 from keras.preprocessing.text import one_hot
 from keras.preprocessing.sequence import pad_sequences
+from keras.optimizers import adam
+from keras.callbacks import TensorBoard, ModelCheckpoint
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import numpy as np
-import matplotlib.pyplot as plt
+
 
 
 def build_model():
 
     model = Sequential()
 
-    model.add(Embedding(5000, 32, input_length=200, batch_size=32))
+    model.add(Embedding(6000, 32, input_length=500))
 
     model.add(LSTM(32, batch_size=1, return_sequences=True, activation="relu"))
     model.add(Dropout(.5))
@@ -30,8 +32,8 @@ def build_model():
     model.compile(
 
         loss="categorical_crossentropy",
-        optimizer="adam",
-        metrics=["binary_accuracy", 'categorical_crossentropy']
+        optimizer=adam(lr=.0001),
+        metrics=["binary_accuracy", 'categorical_crossentropy', 'categorical_accuracy']
     )
 
     return model
@@ -39,8 +41,8 @@ def build_model():
 
 def train_model():
 
-    vocab_size = 5000
-    max_review_length = 200
+    vocab_size = 6000
+    max_review_length = 500
 
     data = pd.read_csv("CleanedReviews.csv")
 
@@ -52,7 +54,7 @@ def train_model():
 
     for sentence in X_temp:
 
-            X_data.append(sentence)
+            X_data.append(sentence.lower())
 
     X_data = [one_hot(word, vocab_size) for word in X_data]
     X_data = pad_sequences(X_data, maxlen=max_review_length)
@@ -75,13 +77,20 @@ def train_model():
 
     model = build_model()
 
-    # y_train = np.array(y_train)
+    callbacks = []
 
-    history = model.fit(x_train, y_train, epochs=2, batch_size=32)
+    callbacks.append(TensorBoard(log_dir='logs', histogram_freq=0,
+                                        write_graph=True, write_images=True))
 
-    plt.plot(history.history["binary_accuracy"])
-    plt.plot(history.history["categorical_crossentropy"])
+    callbacks.append(ModelCheckpoint("Epoch-{epoch01d}-{val_loss:.4f}", monitor='val_loss', verbose=0, save_best_only=True,
+                                    save_weights_only=False, mode='auto', period=1))
 
-    plt.show()
+    # first epoch
+    model.fit(x_train, y_train, epochs=1, batch_size=32, callbacks=[tensor_board_callback])
 
     model.save("1Epoch.h5")
+
+    # second epoch
+    model.fit(x_train, y_train, epochs=1, batch_size=32, callbacks=[tensor_board_callback])
+
+    model.save("2Epoch.h5")
