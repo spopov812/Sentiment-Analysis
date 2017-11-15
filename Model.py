@@ -9,14 +9,13 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 
 
-
 def build_model():
 
     model = Sequential()
 
     model.add(Embedding(6000, 32, input_length=500))
 
-    model.add(LSTM(32, batch_size=1, return_sequences=True, activation="relu"))
+    model.add(LSTM(32, return_sequences=True, activation="relu"))
     model.add(Dropout(.5))
 
     model.add(LSTM(32, return_sequences=True, activation="relu"))
@@ -79,18 +78,11 @@ def train_model():
 
     callbacks = []
 
-    callbacks.append(TensorBoard(log_dir='logs', histogram_freq=0,
-                                        write_graph=True, write_images=True))
+    callbacks.append(TensorBoard(log_dir='logs', histogram_freq=0, write_graph=True, write_images=True))
 
-    callbacks.append(ModelCheckpoint("Epoch-{epoch01d}-{val_loss:.4f}", monitor='val_loss', verbose=0, save_best_only=True,
-                                    save_weights_only=False, mode='auto', period=1))
+    callbacks.append(ModelCheckpoint("Epoch-{epoch01d}-{val_loss:.4f}", monitor='val_loss', verbose=0,
+                                     save_best_only=True, save_weights_only=False, mode='auto', period=1))
 
-    # first epoch
-    model.fit(x_train, y_train, epochs=1, batch_size=32, callbacks=[tensor_board_callback])
+    # training and saving model
+    model.fit(x_train, y_train, epochs=15, batch_size=32, callbacks=callbacks)
 
-    model.save("1Epoch.h5")
-
-    # second epoch
-    model.fit(x_train, y_train, epochs=1, batch_size=32, callbacks=[tensor_board_callback])
-
-    model.save("2Epoch.h5")
