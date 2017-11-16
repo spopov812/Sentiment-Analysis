@@ -1,5 +1,6 @@
 from keras import Sequential
 from keras.layers import Dense, LSTM, Dropout, Embedding, Flatten
+from keras.layers import LeakyReLU
 from keras.preprocessing.text import one_hot
 from keras.preprocessing.sequence import pad_sequences
 from keras.optimizers import adam
@@ -13,16 +14,17 @@ def build_model():
 
     model = Sequential()
 
-    model.add(Embedding(6000, 32, input_length=500))
+    model.add(Embedding(8000, 64, input_length=500))
 
-    model.add(LSTM(32, return_sequences=True, activation="relu"))
+    model.add(LSTM(32, return_sequences=True, activation="Linear"))
+    model.add(LeakyReLU(alpha=.001))
     model.add(Dropout(.5))
 
-    model.add(LSTM(32, return_sequences=True, activation="relu"))
+    model.add(LSTM(32, return_sequences=True, activation="Linear"))
+    model.add(LeakyReLU(alpha=.001))
     model.add(Dropout(.5))
-
     '''
-    model.add(LSTM(32, return_sequences=True, activation="relu"))
+    model.add(LSTM(32, return_sequences=True, activation="LeakyReLU"))
     model.add(Dropout(.5))
     '''
     model.add(Flatten())
@@ -32,7 +34,7 @@ def build_model():
     model.compile(
 
         loss="categorical_crossentropy",
-        optimizer=adam(lr=.0001),
+        optimizer=adam(lr=.001),
         metrics=["binary_accuracy", 'categorical_crossentropy', 'categorical_accuracy']
     )
 
@@ -41,7 +43,7 @@ def build_model():
 
 def train_model():
 
-    vocab_size = 6000
+    vocab_size = 8000
     max_review_length = 500
 
     data = pd.read_csv("CleanedReviews.csv")
@@ -73,7 +75,7 @@ def train_model():
     Y_data = np.array(Y_data)
     X_data = np.array(X_data)
 
-    x_train, x_test, y_train, y_test = train_test_split(X_data, Y_data, test_size=0.99)
+    x_train, x_test, y_train, y_test = train_test_split(X_data, Y_data, test_size=0.3)
 
     model = build_model()
 
@@ -86,5 +88,5 @@ def train_model():
                                      save_best_only=True, save_weights_only=False, mode='auto', period=1))
 
     # training and saving model
-    model.fit(x_train, y_train, epochs=15, batch_size=32, callbacks=callbacks)
+    model.fit(x_train, y_train, epochs=4, callbacks=callbacks)
 
