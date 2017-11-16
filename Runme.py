@@ -3,6 +3,8 @@ from CleanData import clean_data
 from keras.models import load_model
 import numpy as np
 import sys
+from keras.preprocessing.text import one_hot
+from keras.preprocessing.sequence import pad_sequences
 
 
 def test(model_name, x_data, y_data):
@@ -23,9 +25,8 @@ def test(model_name, x_data, y_data):
             num_correct += 1
 
     print("\n\nCorrect sentiment was predicted %d times out of %d test samples (%f percent accuracy).\n" %
-            (num_correct, total_data_size, (num_correct/total_data_size)))
+        (num_correct, total_data_size, (num_correct/total_data_size)))
 
-def test_user_review(review, model):
 
 if len(sys.argv) < 2:
     print("\nInvalid args.\n")
@@ -50,6 +51,9 @@ if "test" in sys.argv:
 
 if "run" in sys.argv:
 
+    vocab_size = 8000
+    max_review_length = 500
+
     model_name = input("\n\nPlease provide name of model to evaluate\n")
     model = load_model(model_name)
 
@@ -61,4 +65,15 @@ if "run" in sys.argv:
         if review == 'q':
             break
 
+        review = review.lower()
 
+        review = [one_hot(word, vocab_size) for word in review]
+        review = pad_sequences(review, maxlen=max_review_length)
+
+        prediction_decimal = model.predict(review)
+        prediction = np.argmax(prediction_decimal)
+
+        if prediction[0] == 0:
+            print("%f confident that this review has negative sentiment" % (prediction_decimal[prediction[0]]))
+        else:
+            print("%f confident that this review has positive sentiment" % (prediction_decimal[prediction[0]]))
