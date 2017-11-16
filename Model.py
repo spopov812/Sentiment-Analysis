@@ -21,9 +21,10 @@ def build_model():
     model.add(LSTM(32, return_sequences=True, activation="relu"))
     model.add(Dropout(.5))
 
+    '''
     model.add(LSTM(32, return_sequences=True, activation="relu"))
     model.add(Dropout(.5))
-
+    '''
     model.add(Flatten())
 
     model.add(Dense(4, activation="softmax"))
@@ -72,7 +73,7 @@ def train_model():
     Y_data = np.array(Y_data)
     X_data = np.array(X_data)
 
-    x_train, x_test, y_train, y_test = train_test_split(X_data, Y_data, test_size=0.3)
+    x_train, x_test, y_train, y_test = train_test_split(X_data, Y_data, test_size=0.99)
 
     model = build_model()
 
@@ -80,7 +81,8 @@ def train_model():
 
     callbacks.append(TensorBoard(log_dir='logs', histogram_freq=0, write_graph=True, write_images=True))
 
-    callbacks.append(ModelCheckpoint("Epoch-{epoch01d}-{val_loss:.4f}", monitor='val_loss', verbose=0,
+    callbacks.append(ModelCheckpoint("Epoch-{epoch:02d}-{categorical_crossentropy:.4f}.h5",
+                                     monitor='categorical_crossentropy', verbose=0,
                                      save_best_only=True, save_weights_only=False, mode='auto', period=1))
 
     # training and saving model
