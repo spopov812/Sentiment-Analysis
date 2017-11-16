@@ -16,11 +16,11 @@ def build_model():
 
     model.add(Embedding(8000, 64, input_length=500))
 
-    model.add(LSTM(32, return_sequences=True, activation="Linear"))
+    model.add(LSTM(32, return_sequences=True))
     model.add(LeakyReLU(alpha=.001))
     model.add(Dropout(.5))
 
-    model.add(LSTM(32, return_sequences=True, activation="Linear"))
+    model.add(LSTM(32, return_sequences=True))
     model.add(LeakyReLU(alpha=.001))
     model.add(Dropout(.5))
     '''
@@ -29,7 +29,7 @@ def build_model():
     '''
     model.add(Flatten())
 
-    model.add(Dense(4, activation="softmax"))
+    model.add(Dense(2, activation="softmax"))
 
     model.compile(
 
@@ -41,7 +41,7 @@ def build_model():
     return model
 
 
-def train_model():
+def train_model(test_size):
 
     vocab_size = 8000
     max_review_length = 500
@@ -63,19 +63,19 @@ def train_model():
 
     for val in Y_temp:
 
-        if val == 1:
-            Y_data.append([1, 0, 0, 0])
-        elif val == 2:
-            Y_data.append([0, 1, 0, 0])
-        elif val == 4:
-            Y_data.append([0, 0, 1, 0])
-        else:
-            Y_data.append([0, 0, 0, 1])
+        if val == 1 or val == 2:
+            Y_data.append([1, 0])
+
+        elif val == 4 or val == 5:
+            Y_data.append([0, 1])
 
     Y_data = np.array(Y_data)
     X_data = np.array(X_data)
 
-    x_train, x_test, y_train, y_test = train_test_split(X_data, Y_data, test_size=0.3)
+    x_train, x_test, y_train, y_test = train_test_split(X_data, Y_data, test_size=test_size)
+
+    x_test.tofile("XTesting_Data")
+    y_test.tofile("YTesting_Data")
 
     model = build_model()
 
