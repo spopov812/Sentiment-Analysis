@@ -24,8 +24,9 @@ def test(model_name, x_data, y_data):
         if y_data[counter][predicted_value[0]] == 1:
             num_correct += 1
 
-    print("\n\nCorrect sentiment was predicted %d times out of %d test samples (%f percent accuracy).\n" %
-        (num_correct, total_data_size, (num_correct/total_data_size)))
+    print("\n\nCorrect sentiment was predicted %d times out of %d test samples (%f percent accuracy).\n" % (
+            num_correct, total_data_size, (num_correct/total_data_size))
+          )
 
 
 if len(sys.argv) < 2:

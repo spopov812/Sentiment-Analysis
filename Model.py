@@ -83,7 +83,7 @@ def train_model(test_size):
 
     callbacks.append(TensorBoard(log_dir='logs', histogram_freq=0, write_graph=True, write_images=True))
 
-    callbacks.append(ModelCheckpoint("Epoch-{epoch:02d}-{categorical_crossentropy:.4f}.h5",
+    callbacks.append(ModelCheckpoint("Epoch-{epoch:02d}-{categorical_crossentropy:.2f}.h5",
                                      monitor='categorical_crossentropy', verbose=0,
                                      save_best_only=True, save_weights_only=False, mode='auto', period=1))
 
