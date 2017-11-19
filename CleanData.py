@@ -1,9 +1,5 @@
 import pandas as pd
-import nltk
-from nltk.corpus import stopwords
-import re
 
-#nltk.download()
 
 def clean_data():
     df = pd.read_csv('Reviews.csv')
