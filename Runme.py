@@ -11,31 +11,43 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 
 def test():
 
-    x_data = np.array(np.load("XTesting_Data.npy"))
-    y_data = np.array(np.load("YTesting_Data.npy"))
+	print("\nLoading testing data...")
 
-    scores = model.evaluate(x_data, y_data, verbose=0)
+	x_data = np.array(np.load("XTesting_Data.npy"))
+	y_data = np.array(np.load("YTesting_Data.npy"))
 
-    print("Accuracy: %.2f%%" % (scores[1]*100))
+	print("Testing...\n")
+
+	scores = model.evaluate(x_data, y_data, verbose=0)
+
+	print("Accuracy: %.2f%%" % (scores[1]*100))
 
 
 # Valid arg count
 if len(sys.argv) < 2:
-    print("\nInvalid args.\n")
+	print("\nInvalid args.\n")
 
 
 # arg parsing
 if "clean" in sys.argv:
-    clean_data()
+	clean_data()
 
 if "train" in sys.argv:
 
-    to_test = input("\n\nWhat percent of the data should be used in training (as decimal)\n")
-    train_model(1 - float(to_test))
+	to_test = input("\n\nWhat percent of the data should be used in training (as decimal)\n")
+	train_model(1 - float(to_test))
 
 if "test" in sys.argv:
 
-    model_name = input("\n\nPlease provide name of model to evaluate\n")
-    model = load_model(model_name)
+	model_name = input("\n\nPlease provide name of model to evaluate- \n")
 
-    test()
+	try:
+		model = load_model(model_name)
+	except OSError:
+		try:
+			model = load_model(model_name + ".h5")
+		except OSError:
+			print("File not found")
+			exit(0)
+
+	test()
